@@ -1,11 +1,12 @@
+# Python-generated files
 __pycache__/
-*.pyc
-.venv/
-.DS_Store
-# Local Mac launcher contains a machine-specific Python path.
-/Run Simulator.command
-# Local environments and credentials
-.env
-.env.*
-!.env.example
-.vscode/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+*.pdf
