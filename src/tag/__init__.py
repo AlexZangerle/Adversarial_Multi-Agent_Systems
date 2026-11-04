@@ -4,20 +4,22 @@ import pygame
 
 from tag.arena import EVADER, Arena
 from tag.render import CELL, draw
-from tag.strategies import random_strategy
+from tag.strategies import EVADER_STRATEGIES, PURSUER_STRATEGIES
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--evaders", type=int, default=1)
     parser.add_argument("--pursuers", type=int, default=3)
+    parser.add_argument("--evader", choices=EVADER_STRATEGIES, default="random")
+    parser.add_argument("--pursuer", choices=PURSUER_STRATEGIES, default="random")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--fps", type=int, default=8)
     args = parser.parse_args()
 
     arena = Arena(args.evaders, args.pursuers, args.seed)
-    evader_strategy = random_strategy
-    pursuer_strategy = random_strategy
+    evader_strategy = EVADER_STRATEGIES[args.evader]
+    pursuer_strategy = PURSUER_STRATEGIES[args.pursuer]
 
     pygame.init()
     h, w = arena.walls.shape

@@ -22,3 +22,6 @@ def greedy_pursuer(arena: Arena, agent: int) -> int:
 
 def greedy_evader(arena: Arena, agent: int) -> int:
     return greedy(arena, agent, arena.pursuers, 1)
+
+EVADER_STRATEGIES = {"random": random_strategy, "greedy": greedy_evader}
+PURSUER_STRATEGIES = {"random": random_strategy, "greedy": greedy_pursuer}
