@@ -2,7 +2,8 @@ import argparse
 
 import pygame
 
-from tag.arena import EVADER, Arena
+from tag.arena import Arena
+from tag.episode import evaluate, select_actions
 from tag.render import CELL, draw
 from tag.strategies import EVADER_STRATEGIES, PURSUER_STRATEGIES
 
@@ -15,26 +16,35 @@ def main() -> None:
     parser.add_argument("--pursuer", choices=PURSUER_STRATEGIES, default="random")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--fps", type=int, default=8)
+    parser.add_argument("--max-steps", type=int, default=200)
+    parser.add_argument("--episodes", type=int)
     args = parser.parse_args()
 
-    arena = Arena(args.evaders, args.pursuers, args.seed)
     evader_strategy = EVADER_STRATEGIES[args.evader]
     pursuer_strategy = PURSUER_STRATEGIES[args.pursuer]
+
+    if args.episodes:
+        rate, mean_steps = evaluate(evader_strategy, pursuer_strategy, args.episodes, args.evaders, args.pursuers, args.seed, args.max_steps)
+        print(f"capture rate {rate:.0%}, mean steps {mean_steps:.1f}")
+        return
+
+    arena = Arena(args.evaders, args.pursuers, args.seed)
 
     pygame.init()
     h, w = arena.walls.shape
     screen = pygame.display.set_mode((w * CELL, h * CELL))
     clock = pygame.time.Clock()
 
+    steps = 0
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
-        if not arena.caught():
-            actions = [evader_strategy(arena, i) if role == EVADER else pursuer_strategy(arena, i) for i, role in enumerate(arena.roles)]
-            arena.step(actions)
+        if not arena.caught() and steps < args.max_steps:
+            arena.step(select_actions(arena, evader_strategy, pursuer_strategy))
+            steps += 1
 
         draw(screen, arena)
         pygame.display.flip()
