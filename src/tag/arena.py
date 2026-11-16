@@ -32,7 +32,10 @@ class Arena:
         self.rng = np.random.default_rng(seed)
 
         free = np.argwhere(~self.walls)
-        self.positions = free[self.rng.choice(len(free), size=self.n_agents, replace=False)]
+        while True:
+            self.positions = free[self.rng.choice(len(free), size=self.n_agents, replace=False)]
+            if not self.caught():
+                break
 
     @property
     def evaders(self) -> np.ndarray:
