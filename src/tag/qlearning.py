@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 import numpy as np
 
@@ -19,6 +20,21 @@ def best_action(q: np.ndarray, arena: Arena, agent: int, rng: np.random.Generato
     actions = np.array(legal_actions(arena, agent))
     values = q[state(arena, agent)][actions]
     return int(rng.choice(actions[values == values.max()]))
+
+
+class QPursuer:
+    def __init__(self, path: str = Q_PATH):
+        self.path = Path(path)
+        self.q = None
+
+    def __call__(self, arena: Arena, agent: int) -> int:
+        if self.q is None:
+            if not self.path.exists():
+                raise SystemExit(f"train first with tag.qlearning")
+            self.q = np.load(self.path)
+        return best_action(self.q, arena, agent, arena.rng)
+
+
 
 def reward(captured: bool) -> float:
     components = {"capture": float(captured), "step": 1.0}
