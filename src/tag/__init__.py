@@ -9,13 +9,13 @@ from tag.strategies import EVADER_STRATEGIES, PURSUER_STRATEGIES
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--evaders", type=int, default=1)
-    parser.add_argument("--pursuers", type=int, default=3)
-    parser.add_argument("--evader", choices=EVADER_STRATEGIES, default="random")
-    parser.add_argument("--pursuer", choices=PURSUER_STRATEGIES, default="random")
-    parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--fps", type=int, default=8)
-    parser.add_argument("--radius", type=int)
+    parser.add_argument("-ne", "--evaders", type=int, default=1)
+    parser.add_argument("-np", "--pursuers", type=int, default=3)
+    parser.add_argument("-e", "--evader", choices=EVADER_STRATEGIES, default="random")
+    parser.add_argument("-p", "--pursuer", choices=PURSUER_STRATEGIES, default="random")
+    parser.add_argument("-s", "--seed", type=int, default=0)
+    parser.add_argument("-f", "--fps", type=int, default=8)
+    parser.add_argument("-r", "--radius", type=int)
     args = parser.parse_args()
 
     arena = Arena(args.evaders, args.pursuers, args.seed)
