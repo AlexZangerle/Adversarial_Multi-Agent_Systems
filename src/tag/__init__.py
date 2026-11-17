@@ -37,7 +37,7 @@ def main() -> None:
             actions = [strategies[role](arena.observe(i, args.radius), arena.rng) for i, role in enumerate(arena.roles)]
             arena.step(actions)
 
-        draw(screen, arena)
+        draw(screen, arena, args.radius)
         screen.blit(font.render(f"{args.evader} vs {args.pursuer}", True, "black", "white"), (4, 4))
         pygame.display.flip()
         clock.tick(args.fps)
