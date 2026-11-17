@@ -2,7 +2,7 @@ import argparse
 
 import pygame
 
-from tag.arena import EVADER, Arena
+from tag.arena import EVADER, PURSUER, Arena
 from tag.render import CELL, draw
 from tag.strategies import EVADER_STRATEGIES, PURSUER_STRATEGIES
 
@@ -15,11 +15,11 @@ def main() -> None:
     parser.add_argument("--pursuer", choices=PURSUER_STRATEGIES, default="random")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--fps", type=int, default=8)
+    parser.add_argument("--radius", type=int)
     args = parser.parse_args()
 
     arena = Arena(args.evaders, args.pursuers, args.seed)
-    evader_strategy = EVADER_STRATEGIES[args.evader]
-    pursuer_strategy = PURSUER_STRATEGIES[args.pursuer]
+    strategies = {EVADER: EVADER_STRATEGIES[args.evader], PURSUER: PURSUER_STRATEGIES[args.pursuer]}
 
     pygame.init()
     h, w = arena.walls.shape
@@ -34,7 +34,7 @@ def main() -> None:
                 running = False
 
         if not arena.caught():
-            actions = [evader_strategy(arena, i) if role == EVADER else pursuer_strategy(arena, i) for i, role in enumerate(arena.roles)]
+            actions = [strategies[role](arena.observe(i, args.radius), arena.rng) for i, role in enumerate(arena.roles)]
             arena.step(actions)
 
         draw(screen, arena)

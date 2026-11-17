@@ -3,6 +3,7 @@ from itertools import combinations
 import numpy as np
 
 EVADER, PURSUER = 0, 1
+WALLS, TEAMMATES, OPPONENTS = range(3)
 STAY, UP, DOWN, LEFT, RIGHT = range(5)
 MOVES = np.array([(0, 0), (-1, 0), (1, 0), (0, -1), (0, 1)])
 
@@ -45,6 +46,19 @@ class Arena:
     def is_free(self, r: int, c: int) -> bool:
         h, w = self.walls.shape
         return 0 <= r < h and 0 <= c < w and not self.walls[r, c]
+
+    def observe(self, agent: int, radius: int | None = None) -> np.ndarray:
+        if radius is None:
+            radius = max(self.walls.shape) - 1
+        size = 2 * radius + 1
+        obs = np.zeros((3, size, size), dtype=bool)
+        r, c = self.positions[agent]
+        obs[WALLS] = np.pad(self.walls, radius, constant_values=True)[r : r + size, c : c + size]
+        for j, pos in enumerate(self.positions):
+            dr, dc = pos - self.positions[agent]
+            if j != agent and max(abs(dr), abs(dc)) <= radius:
+                obs[TEAMMATES if self.roles[j] == self.roles[agent] else OPPONENTS, dr + radius, dc + radius] = True
+        return obs
 
     def caught(self) -> bool:
         return any(np.abs(e - p).sum() <= 1 for e in self.evaders for p in self.pursuers)
