@@ -6,6 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
     "numpy>=2.5.4",
     "pygame-ce>=2.5.8",
+    "torch>=2.15.0",
 ]
 
 [project.scripts]
@@ -22,3 +23,12 @@ line-length = 150
 dev = [
     "ruff>=0.17.5",
 ]
+
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
