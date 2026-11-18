@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -76,6 +77,27 @@ class ReplayBuffer:
 
 def masked_q(net: QNetwork, obs: torch.Tensor, legal: torch.Tensor) -> torch.Tensor:
     return net(obs).masked_fill(~legal, float("-inf"))
+
+
+class DQNPursuer:
+    def __init__(self, path: str = DQN_PATH):
+        self.path = Path(path)
+        self.net = None
+
+    def __call__(self, obs: np.ndarray, rng: np.random.Generator) -> int:
+        if self.net is None:
+            if not self.path.exists():
+                raise SystemExit(f"{self.path} not found, train first with tag-train")
+            checkpoint = torch.load(self.path)
+            self.net = QNetwork(obs.shape[1])
+            try:
+                self.net.load_state_dict(checkpoint["state_dict"])
+            except RuntimeError:
+                raise SystemExit(f"{self.path} was trained with radius {checkpoint['radius']}, run with the same radius")
+            self.net.eval()
+        with torch.no_grad():
+            q = masked_q(self.net, torch.from_numpy(obs[None]), torch.from_numpy(legal_mask(obs)[None]))
+        return int(q.argmax())
 
 
 def reward(captured: bool) -> float:

@@ -3,17 +3,19 @@ import argparse
 import pygame
 
 from tag.arena import EVADER, PURSUER, Arena
+from tag.dqn import DQN_PATH, DQNPursuer
 from tag.episode import evaluate, select_actions
 from tag.render import CELL, draw
 from tag.strategies import EVADER_STRATEGIES, PURSUER_STRATEGIES
 
 
 def main() -> None:
+    pursuer_strategies = {**PURSUER_STRATEGIES, "dqn": DQNPursuer(DQN_PATH)}
     parser = argparse.ArgumentParser()
     parser.add_argument("-ne", "--evaders", type=int, default=1)
     parser.add_argument("-np", "--pursuers", type=int, default=3)
     parser.add_argument("-e", "--evader", choices=EVADER_STRATEGIES, default="random")
-    parser.add_argument("-p", "--pursuer", choices=PURSUER_STRATEGIES, default="random")
+    parser.add_argument("-p", "--pursuer", choices=pursuer_strategies, default="random")
     parser.add_argument("-s", "--seed", type=int, default=0)
     parser.add_argument("-f", "--fps", type=int, default=8)
     parser.add_argument("-r", "--radius", type=int)
@@ -21,7 +23,7 @@ def main() -> None:
     parser.add_argument("-n", "--episodes", type=int)
     args = parser.parse_args()
 
-    strategies = {EVADER: EVADER_STRATEGIES[args.evader], PURSUER: PURSUER_STRATEGIES[args.pursuer]}
+    strategies = {EVADER: EVADER_STRATEGIES[args.evader], PURSUER: pursuer_strategies[args.pursuer]}
 
     if args.episodes:
         rate, mean_steps = evaluate(strategies, args.episodes, args.evaders, args.pursuers, args.seed, args.max_steps, args.radius)
