@@ -31,6 +31,7 @@ class Arena:
         self.roles = np.array([EVADER] * n_evaders + [PURSUER] * n_pursuers)
         self.n_agents = len(self.roles)
         self.rng = np.random.default_rng(seed)
+        self.padded_walls = {}
 
         free = np.argwhere(~self.walls)
         while True:
@@ -56,7 +57,9 @@ class Arena:
         size = 2 * radius + 1
         obs = np.zeros((3, size, size), dtype=bool)
         r, c = self.positions[agent]
-        obs[WALLS] = np.pad(self.walls, radius, constant_values=True)[r : r + size, c : c + size]
+        if radius not in self.padded_walls:
+            self.padded_walls[radius] = np.pad(self.walls, radius, constant_values=True)
+        obs[WALLS] = self.padded_walls[radius][r : r + size, c : c + size]
         for j, pos in enumerate(self.positions):
             dr, dc = pos - self.positions[agent]
             if j != agent and max(abs(dr), abs(dc)) <= radius:
